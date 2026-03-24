@@ -28,7 +28,7 @@ RUN chmod +x /usr/local/bin/run
 
 RUN curl -fsSL https://opencode.ai/install | bash
 
-ENV PATH="/home/devuser/.opencode/bin:/home/devuser/bin:${PATH}"
+ENV PATH="/home/devuser/.opencode/bin:/home/devuser/bin:/usr/local/bin:${PATH}"
 ENV SESSIONS_DIR="/workspace/.opencode-sessions"
 
 WORKDIR /workspace

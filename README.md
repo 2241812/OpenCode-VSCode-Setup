@@ -74,7 +74,9 @@ After installing:
 
 ### 3. Run OpenCode
 
-Open the integrated terminal (`` Ctrl+` ``) and use the session manager:
+> **Important:** Make sure you're running commands in the **VSCode integrated terminal** (`` Ctrl+` ``) - not your host machine's terminal. The `run` command only exists inside the container.
+
+Open the integrated terminal and use the session manager:
 
 > **Note:** The `run` script is installed to `/usr/local/bin/` inside the container, so it's available in your PATH. Use `run` (without `./`) from any directory.
 
@@ -185,7 +187,9 @@ docker run -it --rm -v $(pwd):/workspace -w /workspace opencode-dev
 
 OpenCode sessions allow you to save and resume conversations. Use the `run` script to manage sessions:
 
-> **Note:** Inside the container, `run` is installed to `/usr/local/bin/` and available in your PATH. Use `run` (without `./`) from any directory. If running outside the container, use `./run` from the project directory.
+> **Important:** Make sure you're running these commands in the **VSCode integrated terminal** (`` Ctrl+` ``) inside the container. The `run` command won't exist on your host machine.
+>
+> **Note:** Inside the container, `run` is installed to `/usr/local/bin/` and available in your PATH. Use `run` (without `./`) from any directory.
 
 ### Commands
 
