@@ -18,3 +18,7 @@ npm-debug.log*
 
 # Dependencies
 node_modules/
+
+# OpenCode Sessions (optional - uncomment if you don't want to track sessions)
+# .opencode-sessions/
+# .opencode_data/

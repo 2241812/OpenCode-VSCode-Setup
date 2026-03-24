@@ -1,0 +1,185 @@
+#!/bin/bash
+set -e
+
+SESSIONS_DIR="${SESSIONS_DIR:-./.opencode-sessions}"
+mkdir -p "$SESSIONS_DIR"
+
+show_sessions() {
+    echo ""
+    echo "📁 Saved Sessions:"
+    echo "──────────────────"
+    if [ -d "$SESSIONS_DIR" ] && [ "$(ls -A "$SESSIONS_DIR" 2>/dev/null)" ]; then
+        ls -1t "$SESSIONS_DIR" | nl -v 0 | while read num dir; do
+            local session_file="$SESSIONS_DIR/$dir/.session_id"
+            local session_id=""
+            if [ -f "$session_file" ]; then
+                session_id=$(cat "$session_file")
+            fi
+            local timestamp=$(stat -c %y "$SESSIONS_DIR/$dir" 2>/dev/null | cut -d' ' -f1 || echo "unknown")
+            echo "  [$num] $dir"
+            echo "      ID: ${session_id:-N/A} | Last modified: $timestamp"
+        done
+    else
+        echo "  No saved sessions found."
+    fi
+    echo ""
+}
+
+show_help() {
+    cat << 'EOF'
+🚀 OpenCode Session Manager
+
+Usage: ./run [command] [options]
+
+Commands:
+  new [name]      Start a new session (optionally with a name)
+  resume [name]   Resume a saved session
+  list            List all saved sessions
+  delete [name]   Delete a saved session
+  help            Show this help message
+
+Options:
+  --no-save       Start without saving the session
+  --verbose       Show detailed output
+
+Examples:
+  ./run new                    Start a new anonymous session
+  ./run new my-feature         Start a new session named "my-feature"
+  ./run resume my-feature      Resume the "my-feature" session
+  ./run list                   Show all saved sessions
+  ./run delete old-session     Delete a session
+
+Environment Variables:
+  SESSIONS_DIR      Directory to store sessions (default: ./.opencode-sessions)
+
+EOF
+}
+
+delete_session() {
+    local session_name="$1"
+    if [ -d "$SESSIONS_DIR/$session_name" ]; then
+        echo "🗑️  Deleting session: $session_name"
+        rm -rf "$SESSIONS_DIR/$session_name"
+        echo "✅ Session deleted."
+    else
+        echo "❌ Session not found: $session_name"
+        exit 1
+    fi
+}
+
+save_session() {
+    local session_name="$1"
+    local session_id="$2"
+    local target_dir="$SESSIONS_DIR/$session_name"
+    
+    mkdir -p "$target_dir"
+    echo "$session_id" > "$target_dir/.session_id"
+    
+    # Save conversation if it exists
+    if [ -n "$session_id" ] && [ -d "$HOME/.local/share/opencode" ]; then
+        cp -r "$HOME/.local/share/opencode" "$target_dir/.opencode_data" 2>/dev/null || true
+    fi
+    
+    echo "$session_id" > "$target_dir/.last_session_id"
+}
+
+resume_session() {
+    local session_name="$1"
+    local target_dir="$SESSIONS_DIR/$session_name"
+    
+    if [ ! -d "$target_dir" ]; then
+        echo "❌ Session not found: $session_name"
+        exit 1
+    fi
+    
+    local session_id=$(cat "$target_dir/.session_id" 2>/dev/null || echo "")
+    
+    # Restore conversation if it exists
+    if [ -d "$target_dir/.opencode_data" ]; then
+        rm -rf "$HOME/.local/share/opencode" 2>/dev/null || true
+        cp -r "$target_dir/.opencode_data" "$HOME/.local/share/opencode"
+    fi
+    
+    if [ -n "$session_id" ]; then
+        echo "🔄 Resuming session: $session_name (ID: $session_id)"
+        opencode -s "$session_id"
+    else
+        echo "⚠️  No session ID found, starting fresh..."
+        opencode
+    fi
+}
+
+start_new_session() {
+    local session_name="$1"
+    local no_save="$2"
+    
+    if [ -n "$session_name" ]; then
+        echo "🚀 Starting new session: $session_name"
+    else
+        session_name="session-$(date +%Y%m%d-%H%M%S)"
+        echo "🚀 Starting new session (auto-named: $session_name)"
+    fi
+    
+    # Start opencode and capture the session ID
+    local output_file="$SESSIONS_DIR/$session_name.output"
+    mkdir -p "$SESSIONS_DIR/$session_name"
+    
+    # Run opencode and capture output
+    opencode 2>&1 | tee "$output_file" &
+    local opencode_pid=$!
+    
+    # Wait for user to exit, then extract session info
+    wait $opencode_pid
+    local exit_code=$?
+    
+    # Try to find and save the session ID
+    if [ -d "$HOME/.local/share/opencode" ]; then
+        # Look for session files
+        local latest_session=$(ls -td "$HOME/.local/share/opencode"/ses_* 2>/dev/null | head -1)
+        if [ -n "$latest_session" ]; then
+            local session_id=$(basename "$latest_session")
+            save_session "$session_name" "$session_id"
+            echo ""
+            echo "💾 Session saved: $session_name (ID: $session_id)"
+        fi
+    fi
+    
+    return $exit_code
+}
+
+# Parse arguments
+COMMAND="${1:-new}"
+shift 2>/dev/null || true
+
+case "$COMMAND" in
+    new)
+        SESSION_NAME="$1"
+        start_new_session "$SESSION_NAME"
+        ;;
+    resume)
+        if [ -z "$1" ]; then
+            echo "❌ Please provide a session name to resume."
+            echo "   Run './run list' to see available sessions."
+            exit 1
+        fi
+        resume_session "$1"
+        ;;
+    list|ls)
+        show_sessions
+        ;;
+    delete|rm)
+        if [ -z "$1" ]; then
+            echo "❌ Please provide a session name to delete."
+            exit 1
+        fi
+        delete_session "$1"
+        ;;
+    help|-h|--help)
+        show_help
+        ;;
+    *)
+        echo "❌ Unknown command: $COMMAND"
+        echo "   Run './run help' for usage information."
+        exit 1
+        ;;
+esac
