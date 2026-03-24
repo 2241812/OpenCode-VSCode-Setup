@@ -1,8 +1,8 @@
 {
   "name": "OpenCode Dev",
   "build": {
-    "dockerfile": "Dockerfile",
-    "context": "."
+    "dockerfile": "../Dockerfile",
+    "context": ".."
   },
   "workspaceFolder": "/workspace",
   "remoteUser": "devuser",
