@@ -1,0 +1,8 @@
+{
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.fontSize": 14,
+  "editor.fontSize": 14,
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000
+}
