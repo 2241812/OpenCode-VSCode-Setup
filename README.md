@@ -40,51 +40,45 @@
 * Docker Desktop / Engine
 * GitHub Account
 
-### 1. Clone the Repository
+### 1. Clone and Open
 
 ```bash
 git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
 cd OpenCode-VSCode-Setup
+code .
 ```
 
-### 2. Open in VSCode
-
-```bash
-code opencode-vscode-setup
-```
-
-### 3. Launch with Remote Containers (⭐️ Recommended)
+### 2. Open in Container
 
 Install the VSCode Remote Containers extension (`ms-vscode-remote.remote-containers`).
 
 1. Press `F1` and select **"Remote-Containers: Reopen in Container"**
-2. Wait for the container to build
-3. Open the integrated terminal (`` Ctrl+` ``)
-4. Run OpenCode:
+2. Wait for the container to build (this happens automatically from the Dockerfile)
+
+### 3. Run OpenCode
+
+Open the integrated terminal (`` Ctrl+` ``) and just type:
 
 ```bash
 opencode
 ```
 
-### 4. Alternative: Docker Only (No VS Code)
+That's it! OpenCode is pre-installed and ready to go.
 
-If you prefer to skip VS Code Remote Containers:
+---
 
-**Option A: Use docker-compose (Recommended)**
-```bash
-cp .env.example .env
-# Edit .env with your API keys
-docker-compose up
-```
+## 🏗️ How It Works
 
-**Option B: Build and run manually**
-```bash
-docker build -t opencode-dev .
-docker run -it --rm \
-  -v $(pwd):/workspace \
-  -w /workspace \
-  opencode-dev
-```
+The Dockerfile sets up a complete OpenCode environment:
+
+| Step | What It Does |
+|------|--------------|
+| 1 | Creates `devuser` - a non-root user for security |
+| 2 | Pre-creates config directories (`~/.config/opencode`, `~/.local/share/opencode`, `~/.ssh`) |
+| 3 | Installs OpenCode via the official install script |
+| 4 | Sets up PATH to include OpenCode binaries |
+
+When you use VS Code Remote Containers, everything is pre-configured - just clone and run `opencode`.
 
 ---
 
@@ -111,37 +105,49 @@ docker run -it --rm \
 
 ## 🛠️ Configuration & Setup
 
+### Connect an AI Provider
+
+Before using OpenCode, you need to connect an AI provider:
+
+```bash
+opencode
+/init
+```
+
+Then run `/connect` to add your API key. Or set environment variables:
+
+Create a `.env` file in the project root:
+
+```bash
+OPENAI_API_KEY=sk-your-key-here
+```
+
 ### VSCode Remote Containers
 
 **What is it?**
 
 Remote Containers lets you open any folder inside a Docker container as your workspace in VSCode. Your entire development environment—including OpenCode—runs securely inside the container.
 
-**Benefits over basic Docker usage:**
+**Benefits:**
 - **Seamless integration:** Terminals, extensions, and the file system work naturally
 - **Multiple containers:** Easily switch between isolated project environments
 - **Persistent settings:** Extensions and preferences are saved per container
 
-### Persistent Configuration (Optional)
+### Docker Only (No VS Code)
 
-To keep your OpenCode settings between sessions, mount a volume:
+If you prefer to run without VS Code Remote Containers:
 
+**Using docker-compose:**
 ```bash
-docker run -it --rm \
-  -v $(pwd):/workspace \
-  -v ~/.opencode:/root/.opencode \
-  -w /workspace \
-  opencodeai/opencode
+cp .env.example .env
+# Add your API key to .env
+docker-compose up
 ```
 
-### Environment Variables
-
-Create a `.env` file in the root of your project:
-
+**Or build and run manually:**
 ```bash
-OPENAI_API_KEY=sk-your-key-here
-OPENAI_API_BASE=https://api.openai.com/v1
-OPENCODE_MODEL=gpt-4
+docker build -t opencode-dev .
+docker run -it --rm -v $(pwd):/workspace -w /workspace opencode-dev
 ```
 
 ---
