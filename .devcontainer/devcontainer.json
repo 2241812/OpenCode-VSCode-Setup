@@ -1,23 +1,16 @@
 {
-  "name": "opencode-dev",
-  "dockerfile": "Dockerfile",
-  "context": ".",
+  "name": "OpenCode Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "workspaceFolder": "/workspace",
   "remoteUser": "devuser",
-  "forwardPorts": [],
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-vscode-remote.remote-containers",
-        "eamodio.gitlens",
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint"
-      ],
-      "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash",
-        "terminal.integrated.fontSize": 14,
-        "editor.fontSize": 14,
-        "files.autoSave": "afterDelay"
-      }
+        "ms-vscode-remote.remote-containers"
+      ]
     }
   },
   "mounts": [
