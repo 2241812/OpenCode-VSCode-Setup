@@ -23,7 +23,7 @@ RUN mkdir -p /home/devuser/.config/opencode \
     && mkdir -p /home/devuser/.ssh \
     && mkdir -p /home/devuser/.git-templates
 
-COPY --chown=devuser:devuser run /usr/local/bin/run
+COPY --chown=devuser:devuser run-internal /usr/local/bin/run
 RUN chmod +x /usr/local/bin/run
 
 RUN curl -fsSL https://opencode.ai/install | bash
