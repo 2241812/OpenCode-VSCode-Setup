@@ -77,11 +77,13 @@ code .
 opencode
 ```
 
-**Session commands** (optional):
+That's it! You're now inside a container with OpenCode ready. Use it however you want - ask questions, write code, debug, or manage sessions.
+
+**Optional - Session commands** (if you want to save/resume conversations):
 ```bash
 run new           # Start new session
-run list          # List sessions
-run resume <name> # Resume session
+run list          # List saved sessions
+run resume <name> # Resume a session
 ```
 
 ---
