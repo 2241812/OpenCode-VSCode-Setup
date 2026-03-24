@@ -50,10 +50,19 @@ code .
 
 ### 2. Open in Container
 
-Install the VSCode Remote Containers extension (`ms-vscode-remote.remote-containers`).
+Install the **Dev Containers** extension (published by Microsoft):
 
-1. Press `F1` and select **"Remote-Containers: Reopen in Container"**
-2. Wait for the container to build (this happens automatically from the Dockerfile)
+1. Open VSCode Extensions (`Ctrl+Shift+X`)
+2. Search for "Dev Containers"
+3. Click **Install**
+
+> **Note:** The extension is called "Dev Containers" in VSCode, but uses the command "Dev Containers: Reopen in Container" (formerly "Remote-Containers" in older versions).
+
+After installing:
+
+1. Press `F1` and select **"Dev Containers: Reopen in Container"**
+2. Or click the `><` icon in the bottom-left corner → **"Reopen in Container"**
+3. Wait for the container to build (this happens automatically from the Dockerfile)
 
 ### 3. Run OpenCode
 
