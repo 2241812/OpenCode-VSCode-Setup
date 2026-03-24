@@ -66,15 +66,24 @@ Install the VSCode Remote Containers extension (`ms-vscode-remote.remote-contain
 opencode
 ```
 
-### 4. Alternative: Integrated Terminal Only
+### 4. Alternative: Docker Only (No VS Code)
 
-If you prefer to skip the full Remote Containers setup, just open your standard terminal and run:
+If you prefer to skip VS Code Remote Containers:
 
+**Option A: Use docker-compose (Recommended)**
 ```bash
+cp .env.example .env
+# Edit .env with your API keys
+docker-compose up
+```
+
+**Option B: Build and run manually**
+```bash
+docker build -t opencode-dev .
 docker run -it --rm \
   -v $(pwd):/workspace \
   -w /workspace \
-  opencodeai/opencode
+  opencode-dev
 ```
 
 ---
