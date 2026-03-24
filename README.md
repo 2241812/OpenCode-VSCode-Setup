@@ -36,11 +36,35 @@
 ## ⚡ Quick Start
 
 ### Prerequisites
-* Visual Studio Code
-* Docker Desktop / Engine
+* Docker Desktop / Engine (required)
 * GitHub Account
 
-### 1. Clone and Open
+### Option A: Quick Start (No VSCode Required)
+
+```bash
+git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
+cd OpenCode-VSCode-Setup
+./run new
+```
+
+That's it! The script automatically:
+1. Builds the Docker image (first time only)
+2. Starts the container
+3. Launches OpenCode
+
+**Session commands:**
+```bash
+./run new my-feature    # Start named session
+./run list              # See saved sessions
+./run resume <name>     # Resume a session
+./run delete <name>     # Delete a session
+```
+
+---
+
+### Option B: VSCode Dev Containers
+
+If you prefer using VSCode Dev Containers extension:
 
 ```bash
 git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
@@ -48,51 +72,15 @@ cd OpenCode-VSCode-Setup
 code .
 ```
 
-### 2. Open in Container
-
-Install the **Dev Containers** extension (published by Microsoft):
-
-1. Open VSCode Extensions (`Ctrl+Shift+X`)
-2. Search for "Dev Containers"
-3. Click **Install**
-
-> **Note:** The extension is called "Dev Containers" in VSCode, but uses the command "Dev Containers: Reopen in Container" (formerly "Remote-Containers" in older versions).
-
-After installing:
-
 1. Press `F1` and select **"Dev Containers: Reopen in Container"**
-2. Or click the `><` icon in the bottom-left corner → **"Reopen in Container"**
-3. Wait for the container to build (this happens automatically from the Dockerfile)
+2. Wait for the container to build
 
-> **VSCode Prompt:** When you open the folder, VSCode may ask "Add Dev Container Configuration Files?" - just click **"Add to workspace"** (or "Don't prompt again") and it will use the existing `.devcontainer/` config in the repo.
->
-> **Container Source Prompt:** If VSCode then asks "Select how to define the development container", choose **"From Dockerfile"** (the repo already has both `.devcontainer/devcontainer.json` and `Dockerfile` configured). The devcontainer.json is set up to use the Dockerfile in the project root.
->
-> **Features Prompt:** VSCode may then ask "Select additional features to install" - you can just click **"OK"** (or select "None") since the Dockerfile already includes everything needed.
->
-> **Optional Files Prompt:** VSCode may ask about `.github/dependabot.yml` or other optional files - just click **"OK"** to proceed with defaults.
-
-### 3. Run OpenCode
-
-> **Important:** Make sure you're running commands in the **VSCode integrated terminal** (`` Ctrl+` ``) - not your host machine's terminal. The `run` command only exists inside the container.
-
-Open the integrated terminal and use the session manager:
-
-> **Note:** The `run` script is installed to `/usr/local/bin/` inside the container, so it's available in your PATH. Use `run` (without `./`) from any directory.
-
+Then in the VSCode terminal:
 ```bash
-# Start a new session
-run new
-
-# Or start a named session
-run new my-feature
-
-# Or resume a previous session
-run list        # See all saved sessions
-run resume <name>
+run new           # Start new session
+run list          # List sessions
+run resume <name> # Resume session
 ```
-
-That's it! OpenCode is pre-installed and ready to go.
 
 ---
 
