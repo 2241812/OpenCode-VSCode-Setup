@@ -33,4 +33,4 @@ ENV SESSIONS_DIR="/workspace/.opencode-sessions"
 
 WORKDIR /workspace
 
-ENTRYPOINT ["opencode"]
+CMD ["/bin/bash"]

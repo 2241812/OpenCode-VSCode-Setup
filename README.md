@@ -39,34 +39,30 @@
 * Docker Desktop / Engine (required)
 * GitHub Account
 
-### Option A: Windows (PowerShell or Command Prompt)
-
-```powershell
-git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
-cd OpenCode-VSCode-Setup
-run.bat
-```
-
-That's it! The script:
-1. Builds the Docker image (first time only)
-2. Starts the container
-3. Launches OpenCode
-
-### Option B: VSCode (Recommended)
+### Option A: Quick Start (No VSCode Required)
 
 ```bash
 git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
 cd OpenCode-VSCode-Setup
-code .
+./run new
 ```
 
-VSCode will prompt to **"Reopen in Container"** - click it and wait for the container to build.
+That's it! The script automatically:
+1. Builds the Docker image (first time only)
+2. Starts the container
+3. Launches OpenCode
+
+**Session commands:**
+```bash
+./run new my-feature    # Start named session
+./run list              # See saved sessions
+./run resume <name>     # Resume a session
+./run delete <name>     # Delete a session
+```
 
 ---
 
-### Option B: VSCode Dev Containers
-
-If you prefer using VSCode Dev Containers extension:
+### Option B: VSCode Dev Containers (Recommended)
 
 ```bash
 git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
@@ -75,9 +71,18 @@ code .
 ```
 
 1. VSCode will prompt **"Reopen in Container"** - click it
-2. Wait for the container to build (first time)
+2. Wait for container to build (first time - ~2-3 min)
+3. In the terminal, run:
+```bash
+opencode
+```
 
-OpenCode will launch automatically in the terminal.
+**Session commands** (optional):
+```bash
+run new           # Start new session
+run list          # List sessions
+run resume <name> # Resume session
+```
 
 ---
 
@@ -92,7 +97,7 @@ The Dockerfile sets up a complete OpenCode environment:
 | 3 | Installs OpenCode via the official install script |
 | 4 | Sets up PATH to include OpenCode binaries |
 
-Everything is pre-configured - just run `run.bat` or open in VSCode.
+When you use VS Code Remote Containers, everything is pre-configured - just clone and run `opencode`.
 
 ---
 
@@ -170,7 +175,43 @@ docker run -it --rm -v $(pwd):/workspace -w /workspace opencode-dev
 
 ## 💾 Session Management
 
-OpenCode automatically saves sessions. To resume, just run the container again - your previous work is preserved in the `.opencode-sessions/` folder.
+OpenCode sessions allow you to save and resume conversations. Use the `run` script to manage sessions:
+
+> **Important:** Make sure you're running these commands in the **VSCode integrated terminal** (`` Ctrl+` ``) inside the container. The `run` command won't exist on your host machine.
+>
+> **Note:** Inside the container, `run` is installed to `/usr/local/bin/` and available in your PATH. Use `run` (without `./`) from any directory.
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `run new [name]` | Start a new session (optionally named) |
+| `run resume <name>` | Resume a saved session |
+| `run list` | List all saved sessions |
+| `run delete <name>` | Delete a session |
+
+### Examples
+
+```bash
+# Start a new session with auto-generated name
+run new
+
+# Start a named session for a specific feature
+run new user-authentication
+
+# Resume working on a previous session
+run resume user-authentication
+
+# View all your saved sessions
+run list
+
+# Delete an old session
+run delete old-feature
+```
+
+Sessions are stored in `.opencode-sessions/` directory and persist across container restarts.
+
+For detailed session management, see the [Session Management Guide](./docs/SESSIONS.md).
 
 ---
 

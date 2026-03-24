@@ -1,0 +1,54 @@
+#!/bin/bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+CONTAINER_NAME="opencode-dev"
+IMAGE_NAME="opencode-dev:latest"
+
+command -v docker >/dev/null 2>&1 || {
+    echo "❌ Docker is not installed. Please install Docker Desktop first."
+    exit 1
+}
+
+docker info >/dev/null 2>&1 || {
+    echo "❌ Docker is not running. Please start Docker Desktop."
+    exit 1
+}
+
+if [ -f /.dockerenv ] || grep -q "docker\|containerd" /proc/1/cgroup 2>/dev/null; then
+    exec /usr/local/bin/run "$@"
+fi
+
+ensure_container_running() {
+    if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+        return 0
+    fi
+
+    if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+        echo "🔄 Starting existing container..."
+        docker start -i "$CONTAINER_NAME"
+        return 0
+    fi
+
+    echo "🔨 Building Docker image (first time only)..."
+    docker build -t "$IMAGE_NAME" .
+
+    echo "🚀 Starting container..."
+    docker run -d --name "$CONTAINER_NAME" \
+        -v "$(pwd):/workspace" \
+        -w /workspace \
+        --rm \
+        -it "$IMAGE_NAME" tail -f /dev/null
+
+    echo "✅ Container started!"
+}
+
+ensure_container_running
+
+COMMAND="${1:-new}"
+shift 2>/dev/null || true
+
+echo "📟 Running 'run $COMMAND' inside container..."
+docker exec -it "$CONTAINER_NAME" bash -c "cd /workspace && run $COMMAND $*"
