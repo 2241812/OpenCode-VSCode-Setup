@@ -68,16 +68,18 @@ After installing:
 
 Open the integrated terminal (`` Ctrl+` ``) and use the session manager:
 
+> **Note:** The `run` script is installed to `/usr/local/bin/` inside the container, so it's available in your PATH. Use `run` (without `./`) from any directory.
+
 ```bash
 # Start a new session
-./run new
+run new
 
 # Or start a named session
-./run new my-feature
+run new my-feature
 
 # Or resume a previous session
-./run list        # See all saved sessions
-./run resume <name>
+run list        # See all saved sessions
+run resume <name>
 ```
 
 That's it! OpenCode is pre-installed and ready to go.
@@ -173,34 +175,36 @@ docker run -it --rm -v $(pwd):/workspace -w /workspace opencode-dev
 
 ## 💾 Session Management
 
-OpenCode sessions allow you to save and resume conversations. Use the `./run` script to manage sessions:
+OpenCode sessions allow you to save and resume conversations. Use the `run` script to manage sessions:
+
+> **Note:** Inside the container, `run` is installed to `/usr/local/bin/` and available in your PATH. Use `run` (without `./`) from any directory. If running outside the container, use `./run` from the project directory.
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `./run new [name]` | Start a new session (optionally named) |
-| `./run resume <name>` | Resume a saved session |
-| `./run list` | List all saved sessions |
-| `./run delete <name>` | Delete a session |
+| `run new [name]` | Start a new session (optionally named) |
+| `run resume <name>` | Resume a saved session |
+| `run list` | List all saved sessions |
+| `run delete <name>` | Delete a session |
 
 ### Examples
 
 ```bash
 # Start a new session with auto-generated name
-./run new
+run new
 
 # Start a named session for a specific feature
-./run new user-authentication
+run new user-authentication
 
 # Resume working on a previous session
-./run resume user-authentication
+run resume user-authentication
 
 # View all your saved sessions
-./run list
+run list
 
 # Delete an old session
-./run delete old-feature
+run delete old-feature
 ```
 
 Sessions are stored in `.opencode-sessions/` directory and persist across container restarts.

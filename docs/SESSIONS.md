@@ -2,6 +2,8 @@
 
 This guide explains how to save, resume, and manage OpenCode sessions.
 
+> **Note:** Inside the container, the `run` script is installed to `/usr/local/bin/` and available in your PATH. Use `run` (without `./`) from any directory. If running outside the container, use `./run` from the project directory.
+
 ## What Are Sessions?
 
 Sessions in OpenCode allow you to:
@@ -13,12 +15,14 @@ Sessions in OpenCode allow you to:
 ## Quick Reference
 
 ```bash
-./run new [name]          # Start new session
-./run resume <name>       # Resume saved session
-./run list                # List all sessions
-./run delete <name>       # Delete a session
-./run help                # Show all commands
+run new [name]          # Start new session
+run resume <name>       # Resume saved session
+run list                # List all sessions
+run delete <name>       # Delete a session
+run help                # Show all commands
 ```
+
+> **Tip:** If running outside the container, use `./run` instead of `run`.
 
 ## Starting a New Session
 
@@ -170,7 +174,7 @@ chmod -R 755 .opencode-sessions/
 
 ## Docker-Only Usage
 
-Without the `./run` script, you can still use sessions directly:
+Without the container, you can still use sessions directly with the `opencode` command:
 
 ```bash
 # Run with session persistence
@@ -191,8 +195,8 @@ docker run -it --rm \
 
 | Task | Command |
 |------|---------|
-| Start new session | `./run new [name]` |
-| Resume session | `./run resume <name>` |
-| List sessions | `./run list` |
-| Delete session | `./run delete <name>` |
+| Start new session | `run new [name]` |
+| Resume session | `run resume <name>` |
+| List sessions | `run list` |
+| Delete session | `run delete <name>` |
 | Get session ID | `cat .opencode-sessions/<name>/.session_id` |
