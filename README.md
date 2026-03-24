@@ -1,68 +1,27 @@
-# 🚀 OpenCode in VSCode Terminal
+# OpenCode in VSCode
 
-> **Supercharge your workflow:** Run OpenCode directly inside your VSCode terminal using Docker and Remote Containers for a clean, isolated, and highly reproducible AI development environment.
-
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![VSCode](https://img.shields.io/badge/VSCode-Remote_Containers-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+Run OpenCode inside a Docker container via VSCode Dev Containers - clean, isolated, and reproducible.
 
 ---
 
-## ⚖️ Why Run OpenCode in Docker?
-
-### ✨ The Advantages
+## Why Docker?
 
 | Benefit | Description |
 |---------|-------------|
-| 🛡️ **Isolation** | No dependencies pollute your host machine |
-| 🔄 **Consistency** | Same environment across all users and contributors |
-| 🔒 **Security** | Sandboxed environment that is easy to revoke |
-| 📌 **Version Control** | Pin specific OpenCode versions with ease |
-| 💻 **Cross-Platform** | Works identically on Windows, Mac, and Linux |
-| 🧹 **Clean State** | Start fresh every time, no accumulated junk |
-
-### ⚠️ The Trade-offs
-
-| Limitation | Description |
-|------------|-------------|
-| 📁 **File Access** | Only files in mounted directories are accessible |
-| ⚡ **Performance** | Slight overhead compared to native execution |
-| 🐳 **Docker Required** | Must have Docker installed and running |
-| 🖥️ **No GUI Apps** | Strictly a terminal-only interface |
-| 📈 **Resource Usage** | Consumes memory/CPU for container runtime |
+| Isolation | No dependencies pollute your machine |
+| Consistency | Same environment for everyone |
+| Security | Sandboxed environment |
+| Clean State | Start fresh every time |
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### Prerequisites
-* Docker Desktop / Engine (required)
-* GitHub Account
+* Docker Desktop
+* VSCode with Dev Containers extension
 
-### Option A: Quick Start (No VSCode Required)
-
-```bash
-git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
-cd OpenCode-VSCode-Setup
-./run new
-```
-
-That's it! The script automatically:
-1. Builds the Docker image (first time only)
-2. Starts the container
-3. Launches OpenCode
-
-**Session commands:**
-```bash
-./run new my-feature    # Start named session
-./run list              # See saved sessions
-./run resume <name>     # Resume a session
-./run delete <name>     # Delete a session
-```
-
----
-
-### Option B: VSCode Dev Containers (Recommended)
+### Steps
 
 ```bash
 git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
@@ -70,159 +29,57 @@ cd OpenCode-VSCode-Setup
 code .
 ```
 
-1. VSCode will prompt **"Reopen in Container"** - click it
-2. Wait for container to build (first time - ~2-3 min)
-3. In the terminal, run:
+1. VSCode prompts **"Reopen in Container"** - click it
+2. Wait for build (~2-3 min first time)
+3. In terminal, run:
 ```bash
 opencode
 ```
 
-That's it! You're now inside a container with OpenCode ready. Use it however you want - ask questions, write code, debug, or manage sessions.
-
-**Optional - Session commands** (if you want to save/resume conversations):
-```bash
-run new           # Start new session
-run list          # List saved sessions
-run resume <name> # Resume a session
-```
+That's it! Use OpenCode however you want - ask questions, write code, debug, etc.
 
 ---
 
-## 🏗️ How It Works
-
-The Dockerfile sets up a complete OpenCode environment:
-
-| Step | What It Does |
-|------|--------------|
-| 1 | Creates `devuser` - a non-root user for security |
-| 2 | Pre-creates config directories (`~/.config/opencode`, `~/.local/share/opencode`, `~/.ssh`) |
-| 3 | Installs OpenCode via the official install script |
-| 4 | Sets up PATH to include OpenCode binaries |
-
-When you use VS Code Remote Containers, everything is pre-configured - just clone and run `opencode`.
-
----
-
-## 🏗️ Project Structure
-
-```
-.
-├── .devcontainer/
-│   └── devcontainer.json  # Dev Container configuration (auto-detected by VSCode)
-├── .vscode/
-│   ├── settings.json
-│   └── extensions.json
-├── docs/
-│   ├── AGENTS.md
-│   ├── DOCKER.md
-│   ├── QUICKSTART.md
-│   └── SESSIONS.md      # Session management guide
-├── Dockerfile           # Build your own OpenCode image
-├── docker-compose.yml   # Easy container management
-├── run                  # Session management script
-├── LICENSE
-└── README.md
-```
-
----
-
-## 🛠️ Configuration & Setup
-
-### Connect an AI Provider
-
-Before using OpenCode, you need to connect an AI provider:
+## Connect an AI Provider
 
 ```bash
 opencode
 /init
 ```
 
-Then run `/connect` to add your API key. Or set environment variables:
-
-Create a `.env` file in the project root:
+Then run `/connect` to add your API key, or create a `.env` file:
 
 ```bash
-OPENAI_API_KEY=sk-your-key-here
+OPENAI_API_KEY=your-key-here
 ```
 
-### VSCode Remote Containers
+---
 
-**What is it?**
+## Without VSCode
 
-Remote Containers lets you open any folder inside a Docker container as your workspace in VSCode. Your entire development environment—including OpenCode—runs securely inside the container.
-
-**Benefits:**
-- **Seamless integration:** Terminals, extensions, and the file system work naturally
-- **Multiple containers:** Easily switch between isolated project environments
-- **Persistent settings:** Extensions and preferences are saved per container
-
-### Docker Only (No VS Code)
-
-If you prefer to run without VS Code Remote Containers:
-
-**Using docker-compose:**
-```bash
-cp .env.example .env
-# Add your API key to .env
-docker-compose up
-```
-
-**Or build and run manually:**
 ```bash
 docker build -t opencode-dev .
 docker run -it --rm -v $(pwd):/workspace -w /workspace opencode-dev
 ```
 
----
-
-## 💾 Session Management
-
-OpenCode sessions allow you to save and resume conversations. Use the `run` script to manage sessions:
-
-> **Important:** Make sure you're running these commands in the **VSCode integrated terminal** (`` Ctrl+` ``) inside the container. The `run` command won't exist on your host machine.
->
-> **Note:** Inside the container, `run` is installed to `/usr/local/bin/` and available in your PATH. Use `run` (without `./`) from any directory.
-
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| `run new [name]` | Start a new session (optionally named) |
-| `run resume <name>` | Resume a saved session |
-| `run list` | List all saved sessions |
-| `run delete <name>` | Delete a session |
-
-### Examples
-
+Or with docker-compose:
 ```bash
-# Start a new session with auto-generated name
-run new
-
-# Start a named session for a specific feature
-run new user-authentication
-
-# Resume working on a previous session
-run resume user-authentication
-
-# View all your saved sessions
-run list
-
-# Delete an old session
-run delete old-feature
+cp .env.example .env
+# Add your API key
+docker-compose up
 ```
 
-Sessions are stored in `.opencode-sessions/` directory and persist across container restarts.
+---
 
-For detailed session management, see the [Session Management Guide](./docs/SESSIONS.md).
+## How It Works
+
+The Dockerfile sets up Ubuntu with OpenCode pre-installed. When you open in VSCode:
+1. Dev Containers builds the image
+2. Opens terminal inside the container
+3. Run `opencode` to start
 
 ---
 
-## 🤖 Agent Models Guide
+## License
 
-Looking to swap out or configure different models? Check out the detailed [Agents Setup Guide](./docs/AGENTS.md).
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**. This means you are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, provided you include the original copyright notice and permission notice. See the `LICENSE` file for more details.
+MIT
