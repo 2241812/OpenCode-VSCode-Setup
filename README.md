@@ -92,6 +92,8 @@ docker run -it --rm \
 │   ├── AGENTS.md
 │   ├── DOCKER.md
 │   └── QUICKSTART.md
+├── Dockerfile           # Build your own OpenCode image
+├── docker-compose.yml  # Easy container management
 ├── LICENSE
 └── README.md
 ```

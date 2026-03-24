@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  opencode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: opencode-dev:latest
+    container_name: opencode-dev
+    volumes:
+      - .:/workspace
+      - opencode-config:/home/devuser/.opencode
+      - ssh-config:/home/devuser/.ssh
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_API_BASE=${OPENAI_API_BASE:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+
+volumes:
+  opencode-config:
+  ssh-config:

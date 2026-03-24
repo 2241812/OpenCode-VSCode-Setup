@@ -1,16 +1,11 @@
 {
-  "name": "opencode-dev-env",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
+  "name": "opencode-dev",
+  "dockerfile": "../Dockerfile",
   "forwardPorts": [],
-  "portsAttributes": {},
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-vscode-remote.remote-containers",
-        "ms-azuretools.vscode-docker",
         "eamodio.gitlens",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint"
@@ -23,9 +18,8 @@
       }
     }
   },
-  "postCreateCommand": "docker pull opencodeai/opencode",
-  "remoteUser": "devcontainer",
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind"
-  ]
+  ],
+  "postCreateCommand": "opencode --version"
 }

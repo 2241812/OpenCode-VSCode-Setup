@@ -1,65 +1,10 @@
-# Docker Setup Details
+# Docker Setup Guide
 
-## Understanding the Docker Environment
+This guide covers everything you need to run OpenCode in Docker, including building your own image and using it with VS Code Remote Containers.
 
-### Why Docker for OpenCode?
+## Quick Reference
 
-1. **Dependency Isolation**
-   - OpenCode may require specific Python versions, Node.js, or system packages
-   - Docker ensures these don't conflict with your host system
-   - No more "it works on my machine" problems
-
-2. **Consistent Experience**
-   - Every user/agent gets the same environment
-   - Reproducible builds and deployments
-   - Version pinning made easy
-
-3. **Security**
-   - Running code in sandboxed containers
-   - Easy to revoke access (stop container)
-   - No permanent changes to host system
-
-4. **Multi-Project Management**
-   - Each project can have its own OpenCode version
-   - No cross-contamination between projects
-   - Easy cleanup (just remove the container)
-
-## Current Limitations
-
-### File System Access
-
-```
-Container filesystem
-├── /workspace        ← Only this is accessible!
-│   └── (your mounted project files)
-└── /root/.opencode   ← Config (if mounted)
-```
-
-**What this means:**
-- Cannot read files outside `/workspace`
-- Cannot access host's home directory
-- Must mount volumes explicitly
-
-### Docker Requirements
-
-- Docker daemon must be running
-- Minimum 2GB RAM recommended
-- Linux containers (on Windows/Mac, uses WSL2 or Hyper-V)
-
-## Advantages Summary
-
-| Aspect | Without Docker | With Docker |
-|--------|---------------|-------------|
-| Setup time | Variable | Instant with image |
-| Conflicts | Common | None |
-| Cleanup | Manual | Automatic |
-| Sharing | "Works on my machine" | Exact replica |
-| Permissions | Host-based | Container-based |
-| Isolation | Poor | Strong |
-
-## Docker Commands Reference
-
-### Run OpenCode manually
+### Option 1: Use Pre-built Image (Simplest)
 
 ```bash
 docker run -it --rm \
@@ -68,48 +13,199 @@ docker run -it --rm \
   opencodeai/opencode
 ```
 
-### Run with persistent config
+### Option 2: Build Your Own Image
+
+```bash
+git clone https://github.com/2241812/OpenCode-VSCode-Setup.git
+cd OpenCode-VSCode-Setup
+docker build -t opencode-dev .
+docker run -it --rm \
+  -v $(pwd):/workspace \
+  -w /workspace \
+  opencode-dev
+```
+
+---
+
+## The Dockerfile Explained
+
+The included `Dockerfile` creates a proper development environment:
+
+```dockerfile
+FROM ubuntu:24.04
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates git openssh-client sudo vim
+
+# Create a non-root user (devuser)
+RUN useradd -m -s /bin/bash devuser && \
+    echo "devuser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devuser
+
+USER devuser
+WORKDIR /home/devuser
+
+# Create required directories for OpenCode
+RUN mkdir -p /home/devuser/.config/opencode \
+    && mkdir -p /home/devuser/.local/share/opencode \
+    && mkdir -p /home/devuser/.ssh
+
+# Install OpenCode
+RUN curl -fsSL https://opencode.ai/install | bash
+
+ENV PATH="/home/devuser/.opencode/bin:${PATH}"
+
+WORKDIR /workspace
+
+ENTRYPOINT ["opencode"]
+```
+
+### Key Components:
+
+| Component | Purpose |
+|-----------|---------|
+| `ubuntu:24.04` | Base image - modern and stable |
+| `devuser` | Non-root user for security |
+| `~/.config/opencode` | OpenCode config directory |
+| `~/.local/share/opencode` | OpenCode data directory |
+| `~/.ssh` | SSH keys for Git access |
+| `PATH` | Includes OpenCode binary location |
+
+---
+
+## Using Docker Compose (Recommended)
+
+### 1. Create a `.env` file:
+
+```bash
+# .env
+OPENAI_API_KEY=sk-your-key-here
+GITHUB_TOKEN=ghp_your_github_token
+```
+
+### 2. Run with docker-compose:
+
+```bash
+docker-compose up
+```
+
+### 3. Run in background:
+
+```bash
+docker-compose up -d
+docker-compose exec opencode bash
+```
+
+---
+
+## VS Code Remote Containers
+
+### Option A: Use the Dockerfile Directly
+
+1. Open the project in VS Code
+2. Press `F1` → "Remote-Containers: Open Folder in Container..."
+3. VS Code will build the image from the included `Dockerfile`
+4. Open integrated terminal and run `opencode`
+
+### Option B: Update devcontainer.json
+
+Edit `.devcontainer/devcontainer.json` to use your custom Dockerfile:
+
+```json
+{
+  "name": "opencode-dev",
+  "dockerfile": "../Dockerfile",
+  "forwardPorts": [],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode-remote.remote-containers"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind"
+  ],
+  "postCreateCommand": "opencode --version"
+}
+```
+
+---
+
+## GitHub Authentication in Docker
+
+### Option 1: Environment Variable
+
+```bash
+docker run -it --rm \
+  -e GITHUB_TOKEN=ghp_your_token_here \
+  -v $(pwd):/workspace \
+  -w /workspace \
+  opencode-dev
+```
+
+### Option 2: Mount SSH Keys
+
+```bash
+docker run -it --rm \
+  -v ~/.ssh:/home/devuser/.ssh:ro \
+  -v $(pwd):/workspace \
+  -w /workspace \
+  opencode-dev
+```
+
+### Option 3: Git Credential Store
+
+Add to your Dockerfile before the `USER devuser` line:
+
+```dockerfile
+RUN git config --global credential.helper store && \
+    echo "https://ghp_YOURTOKEN:@github.com" > /home/devuser/.git-credentials
+```
+
+---
+
+## Persistent Configuration
+
+### Mount OpenCode Config
 
 ```bash
 docker run -it --rm \
   -v $(pwd):/workspace \
-  -v ~/.opencode:/root/.opencode \
+  -v ~/.opencode:/home/devuser/.opencode \
   -w /workspace \
-  opencodeai/opencode
+  opencode-dev
 ```
 
-### Run with environment file
+### Create a Shell Alias
+
+Add to `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-docker run -it --rm \
-  --env-file .env \
+alias opencode='docker run -it --rm \
   -v $(pwd):/workspace \
   -w /workspace \
-  opencodeai/opencode
+  -v ~/.opencode:/home/devuser/.opencode \
+  opencode-dev'
 ```
 
-### Check if Docker is running
+Then reload: `source ~/.bashrc`
 
-```bash
-docker ps
-```
-
-### Remove all stopped containers
-
-```bash
-docker container prune
-```
+---
 
 ## Troubleshooting
 
-### Permission Denied
+### Permission Denied on Mounted Files
 
 ```bash
 docker run -it --rm \
   --user $(id -u):$(id -g) \
   -v $(pwd):/workspace \
   -w /workspace \
-  opencodeai/opencode
+  opencode-dev
 ```
 
 ### Docker not running
@@ -119,15 +215,34 @@ docker run -it --rm \
 sudo systemctl start docker
 
 # macOS/Windows
-# Start Docker Desktop application
+# Start Docker Desktop
 ```
 
-### Volume mount issues
+### Build fails with "Permission denied"
+
+Make sure you have write permissions to the directory:
 
 ```bash
-# Check volume exists
-docker volume ls
-
-# Inspect volume
-docker volume inspect volume_name
+chmod 755 .
+docker build -t opencode-dev .
 ```
+
+### Container exits immediately
+
+The `ENTRYPOINT ["opencode"]` requires an interactive terminal:
+
+```bash
+docker run -it --rm opencode-dev
+# NOT: docker run --rm opencode-dev
+```
+
+---
+
+## Environment Variables Reference
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `OPENAI_API_KEY` | OpenAI API key | `sk-...` |
+| `OPENAI_API_BASE` | Custom API endpoint | `https://api.openai.com/v1` |
+| `ANTHROPIC_API_KEY` | Anthropic API key | `sk-ant-...` |
+| `GITHUB_TOKEN` | GitHub PAT | `ghp_...` |
