@@ -1,6 +1,7 @@
 {
   "name": "opencode-dev",
   "dockerfile": "../Dockerfile",
+  "context": "..",
   "forwardPorts": [],
   "customizations": {
     "vscode": {
