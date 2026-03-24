@@ -1,7 +1,7 @@
 {
   "name": "opencode-dev",
-  "dockerfile": "../Dockerfile",
-  "context": "..",
+  "dockerfile": "Dockerfile",
+  "context": ".",
   "forwardPorts": [],
   "customizations": {
     "vscode": {
@@ -22,5 +22,5 @@
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind"
   ],
-  "postCreateCommand": "chmod +x /usr/local/bin/run && opencode --version"
+  "postCreateCommand": "chmod +x /usr/local/bin/run && which run"
 }
